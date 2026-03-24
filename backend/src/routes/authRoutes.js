@@ -10,6 +10,10 @@ import { validateRequest } from "../middleware/validationMiddleware.js"
 
 const router = express.Router()
 
+router.get("/test", (req, res) => {
+  res.json({ success: true, message: "Auth route working" })
+})
+
 router.post(
   "/register",
   [

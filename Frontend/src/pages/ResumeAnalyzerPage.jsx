@@ -11,6 +11,7 @@ import BlurLockCard from "../components/common/BlurLockCard"
 import LoginModal from "../components/common/LoginModal"
 import { AnalysisContext } from "../context/AnalysisContext"
 import { AuthContext } from "../context/AuthContext"
+import { analyzeResumeApi } from "../services/analysisService"
 
 function ResumeAnalyzerPage() {
   const { user } = useContext(AuthContext)
@@ -18,27 +19,15 @@ function ResumeAnalyzerPage() {
   const [showLoginModal, setShowLoginModal] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  async function handleMockAnalyze() {
+  async function handleAnalyze() {
+    if (!uploadedResume?._id) return
+
     try {
       setLoading(true)
-
-      const mockResult = {
-        atsScore: 78,
-        extractedSkills: ["React", "Node.js", "MongoDB", "JavaScript", "Express.js"],
-        missingSkills: ["TypeScript", "Docker", "CI/CD"],
-        suggestions: [
-          "Add more job-specific keywords",
-          "Mention measurable achievements in projects",
-          "Improve summary with role-focused language"
-        ],
-        formattingTips: [
-          "Keep section headings consistent",
-          "Use bullet points for experience and projects",
-          "Keep resume length within 1-2 pages"
-        ]
-      }
-
-      setAnalysisResult(mockResult)
+      const data = await analyzeResumeApi({ resumeId: uploadedResume._id })
+      setAnalysisResult(data.analysis)
+    } catch (error) {
+      console.error(error)
     } finally {
       setLoading(false)
     }
@@ -58,8 +47,8 @@ function ResumeAnalyzerPage() {
           </p>
 
           <button
-            onClick={handleMockAnalyze}
-            disabled={loading || !uploadedResume}
+            onClick={handleAnalyze}
+            disabled={loading || !uploadedResume?._id}
             className="px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-60"
           >
             {loading ? "Analyzing..." : "Analyze Resume"}

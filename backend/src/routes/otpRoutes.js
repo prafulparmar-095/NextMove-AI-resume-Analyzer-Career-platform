@@ -15,8 +15,8 @@ router.post(
 router.post(
   "/verify",
   [
-    body("email").isEmail(),
-    body("otp").isLength({ min: 4 })
+    body("email").isEmail().withMessage("Valid email required"),
+    body("otp").isLength({ min: 4 }).withMessage("Valid OTP required")
   ],
   validateRequest,
   verifyOtp

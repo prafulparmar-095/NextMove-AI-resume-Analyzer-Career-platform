@@ -1,11 +1,10 @@
 import axios from "axios"
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api",
   withCredentials: true
 })
 
-// attach token automatically
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("nextmove_token")
@@ -17,7 +16,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 )
 
-// handle global errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {

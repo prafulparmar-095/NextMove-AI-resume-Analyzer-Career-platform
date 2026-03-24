@@ -14,13 +14,6 @@ async function getAdminStats(req, res, next) {
     const careerUsage = await CareerSuggestion.countDocuments()
     const guestVisits = await ActivityLog.countDocuments({ role: "guest" })
 
-    const recentActivities = await ActivityLog.find()
-      .sort({ createdAt: -1 })
-      .limit(10)
-
-    const users = await User.find().select("-password").sort({ createdAt: -1 }).limit(20)
-    const resumes = await UploadedResume.find().sort({ createdAt: -1 }).limit(20)
-
     res.json({
       success: true,
       stats: {
@@ -30,14 +23,57 @@ async function getAdminStats(req, res, next) {
         createdResumes,
         atsAnalyses,
         careerUsage
-      },
-      recentActivities,
-      users,
-      resumes
+      }
     })
   } catch (error) {
     next(error)
   }
 }
 
-export { getAdminStats }
+async function getAdminUsers(req, res, next) {
+  try {
+    const users = await User.find().select("-password").sort({ createdAt: -1 })
+
+    res.json({
+      success: true,
+      users
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+async function getAdminResumes(req, res, next) {
+  try {
+    const uploadedResumes = await UploadedResume.find().sort({ createdAt: -1 })
+    const builtResumes = await BuiltResume.find().sort({ createdAt: -1 })
+
+    res.json({
+      success: true,
+      uploadedResumes,
+      builtResumes
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+async function getAdminActivities(req, res, next) {
+  try {
+    const activities = await ActivityLog.find().sort({ createdAt: -1 }).limit(50)
+
+    res.json({
+      success: true,
+      activities
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+export {
+  getAdminStats,
+  getAdminUsers,
+  getAdminResumes,
+  getAdminActivities
+}

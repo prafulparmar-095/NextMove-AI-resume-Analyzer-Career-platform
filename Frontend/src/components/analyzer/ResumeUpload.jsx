@@ -18,11 +18,12 @@ function ResumeUpload() {
 
     try {
       setLoading(true)
+
       const formData = new FormData()
       formData.append("resume", file)
 
       const data = await uploadResumeApi(formData)
-      setUploadedResume(data)
+      setUploadedResume(data.resume)
       toast.success("Resume uploaded successfully")
     } catch (error) {
       toast.error(error?.response?.data?.message || "Upload failed")
@@ -46,7 +47,7 @@ function ResumeUpload() {
         <button
           type="submit"
           disabled={loading}
-          className="px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-70"
+          className="px-6 py-3 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-60"
         >
           {loading ? "Uploading..." : "Upload Resume"}
         </button>
