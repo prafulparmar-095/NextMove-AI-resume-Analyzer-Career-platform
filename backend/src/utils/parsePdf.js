@@ -1,13 +1,18 @@
 import fs from "fs"
+import { PDFParse } from "pdf-parse"
+import { CanvasFactory } from "pdf-parse/worker"
 
 async function parsePdf(filePath) {
   const buffer = fs.readFileSync(filePath)
 
-  const module = await import("pdf-parse")
-  const pdfParse = module.default || module
+  const parser = new PDFParse({
+    data: buffer,
+    CanvasFactory
+  })
 
-  const data = await pdfParse(buffer)
-  return data.text || ""
+  const result = await parser.getText()
+
+  return result.text || ""
 }
 
 export default parsePdf

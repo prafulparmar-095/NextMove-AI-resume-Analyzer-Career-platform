@@ -1,20 +1,26 @@
 import { createContext, useEffect, useState } from "react"
 
-export const AuthContext = createContext()
+export const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("nextmove_user")
-    const storedToken = localStorage.getItem("nextmove_token")
+    try {
+      const storedUser = localStorage.getItem("nextmove_user")
+      const storedToken = localStorage.getItem("nextmove_token")
 
-    if (storedUser && storedToken) {
-      setUser(JSON.parse(storedUser))
+      if (storedUser && storedToken) {
+        setUser(JSON.parse(storedUser))
+      }
+    } catch (error) {
+      console.error("Auth load error:", error)
+      localStorage.removeItem("nextmove_user")
+      localStorage.removeItem("nextmove_token")
+    } finally {
+      setLoading(false)
     }
-
-    setLoading(false)
   }, [])
 
   function loginUser(userData, token) {

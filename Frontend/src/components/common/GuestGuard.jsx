@@ -1,11 +1,20 @@
 import { useContext } from "react"
+import { Navigate } from "react-router-dom"
 import { AuthContext } from "../../context/AuthContext"
 
-function GuestGuard({ children, fallback }) {
-  const { user } = useContext(AuthContext)
+function GuestGuard({ children }) {
+  const { user, loading } = useContext(AuthContext)
 
-  if (!user) {
-    return fallback || null
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-lg font-semibold">
+        Loading...
+      </div>
+    )
+  }
+
+  if (user) {
+    return <Navigate to="/dashboard" replace />
   }
 
   return children

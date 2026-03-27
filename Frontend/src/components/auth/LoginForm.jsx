@@ -5,7 +5,7 @@ import { loginApi } from "../../services/authService"
 
 function LoginForm() {
   const navigate = useNavigate()
-  const { setUser } = useContext(AuthContext)
+  const { loginUser } = useContext(AuthContext)
 
   const [form, setForm] = useState({
     email: "",
@@ -27,10 +27,7 @@ function LoginForm() {
       setError("")
 
       const data = await loginApi(form)
-
-      setUser(data.user)
-      localStorage.setItem("nextmove_user", JSON.stringify(data.user))
-      localStorage.setItem("nextmove_token", data.token)
+      loginUser(data.user, data.token)
 
       navigate("/dashboard")
     } catch (err) {

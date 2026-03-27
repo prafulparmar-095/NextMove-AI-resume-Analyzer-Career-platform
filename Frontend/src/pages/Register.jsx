@@ -1,15 +1,11 @@
-import Navbar from "../components/common/Navbar"
-import Footer from "../components/common/Footer"
 import RegisterForm from "../components/auth/RegisterForm"
 
 function Register() {
   return (
-    <div className="min-h-screen bg-slate-50">
-      <Navbar />
-      <div className="container-custom px-4 py-16">
+    <div className="min-h-[calc(100vh-80px)] bg-slate-50 flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-md">
         <RegisterForm />
       </div>
-      <Footer />
     </div>
   )
 }
