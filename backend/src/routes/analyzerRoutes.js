@@ -10,8 +10,8 @@ import {
 
 const router = express.Router()
 
-router.post("/upload", uploadResume.single("resume"), uploadAndStoreResume)
-router.post("/analyze", analyzeResume)
+router.post("/upload", protect, uploadResume.single("resume"), uploadAndStoreResume)
+router.post("/analyze", protect, analyzeResume)
 router.get("/history", protect, getAnalysisHistory)
 router.get("/:id", protect, getAnalysisById)
 

@@ -43,16 +43,16 @@ async function uploadAndStoreResume(req, res, next) {
     }
 
     const resume = await UploadedResume.create({
-      userId: req.user?._id || null,
+      userId: req.user._id,
       fileName,
       fileUrl: `/uploads/resumes/${fileName}`,
       extractedText
     })
 
     await logActivity({
-      userId: req.user?._id || null,
+      userId: req.user._id,
       action: "Resume uploaded for analysis",
-      role: req.user?.role || "guest",
+      role: req.user.role || "user",
       meta: { fileName }
     })
 
@@ -78,12 +78,27 @@ async function analyzeResume(req, res, next) {
       })
     }
 
-    const resume = await UploadedResume.findById(resumeId)
+    const resume = await UploadedResume.findOne({
+      _id: resumeId,
+      userId: req.user._id
+    })
 
     if (!resume) {
       return res.status(404).json({
         success: false,
         message: "Resume not found"
+      })
+    }
+
+    const existingAnalysis = await Analysis.findOne({
+      resumeId,
+      userId: req.user._id
+    })
+
+    if (existingAnalysis) {
+      return res.status(200).json({
+        success: true,
+        analysis: existingAnalysis
       })
     }
 
@@ -101,8 +116,8 @@ async function analyzeResume(req, res, next) {
 
     const keywordsFound = keywordMatcher(text, targetKeywords)
 
+ 
     const requiredSkills = ["react", "node.js", "mongodb", "javascript"]
-
     const normalizedSkills = extractedSkills.map((skill) => skill.toLowerCase())
 
     const missingSkills = requiredSkills.filter(
@@ -116,6 +131,7 @@ async function analyzeResume(req, res, next) {
     })
 
     const predictedRoleData = predictRoles(extractedSkills) || []
+
     const predictedRoles = predictedRoleData.slice(0, 3).map((item) => item.title)
 
     const suggestions = [
@@ -131,7 +147,7 @@ async function analyzeResume(req, res, next) {
     ]
 
     const analysis = await Analysis.create({
-      userId: req.user?._id || null,
+      userId: req.user._id,
       resumeId,
       extractedSkills,
       missingSkills,
@@ -145,13 +161,13 @@ async function analyzeResume(req, res, next) {
     })
 
     await logActivity({
-      userId: req.user?._id || null,
+      userId: req.user._id,
       action: "Resume analyzed",
-      role: req.user?.role || "guest",
+      role: req.user.role || "user",
       meta: { resumeId, atsScore }
     })
 
-    return res.json({
+    return res.status(201).json({
       success: true,
       analysis
     })
@@ -161,13 +177,13 @@ async function analyzeResume(req, res, next) {
   }
 }
 
-async function getAnalysisHistory(req, res, next) {
-  try {
+    async function getAnalysisHistory(req, res, next) {
+    try {
     const history = await Analysis.find({ userId: req.user._id })
       .populate("resumeId", "fileName fileUrl")
       .sort({ createdAt: -1 })
 
-    return res.json({
+    return res.status(200).json({
       success: true,
       history
     })
@@ -191,7 +207,7 @@ async function getAnalysisById(req, res, next) {
       })
     }
 
-    return res.json({
+    return res.status(200).json({
       success: true,
       analysis
     })

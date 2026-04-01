@@ -7,6 +7,16 @@ async function generateCareer(req, res, next) {
   try {
     const { analysisId } = req.body
 
+    if (!analysisId) {
+      res.status(400)
+      throw new Error("Analysis ID is required")
+    }
+
+    if (!req.user || !req.user._id) {
+      res.status(401)
+      throw new Error("Unauthorized user")
+    }
+
     const analysis = await Analysis.findOne({
       _id: analysisId,
       userId: req.user._id
@@ -28,11 +38,12 @@ async function generateCareer(req, res, next) {
     await logActivity({
       userId: req.user._id,
       action: "Career suggestions generated",
-      role: req.user.role
+      role: req.user.role || "user"
     })
 
-    res.json({
+    res.status(200).json({
       success: true,
+      message: "Career suggestions generated successfully",
       career
     })
   } catch (error) {
@@ -42,11 +53,18 @@ async function generateCareer(req, res, next) {
 
 async function getMyCareerSuggestions(req, res, next) {
   try {
-    const suggestions = await CareerSuggestion.find({ userId: req.user._id })
+    if (!req.user || !req.user._id) {
+      res.status(401)
+      throw new Error("Unauthorized user")
+    }
+
+    const suggestions = await CareerSuggestion.find({
+      userId: req.user._id
+    })
       .populate("analysisId")
       .sort({ createdAt: -1 })
 
-    res.json({
+    res.status(200).json({
       success: true,
       suggestions
     })

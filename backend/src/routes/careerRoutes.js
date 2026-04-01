@@ -7,6 +7,10 @@ import {
 
 const router = express.Router()
 
+router.get("/test", (req, res) => {
+  res.json({ success: true, message: "Career route working" })
+})
+
 router.post("/generate", protect, generateCareer)
 router.get("/my-suggestions", protect, getMyCareerSuggestions)
 
