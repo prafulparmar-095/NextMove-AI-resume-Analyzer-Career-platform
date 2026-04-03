@@ -17,6 +17,9 @@ async function uploadAndStoreResume(req, res, next) {
       })
     }
 
+    const userId = req.user?._id || null
+    const userRole = req.user?.role || "guest"
+
     const filePath = req.file.path
     const fileName = req.file.filename
     const originalName = req.file.originalname || fileName
@@ -43,18 +46,20 @@ async function uploadAndStoreResume(req, res, next) {
     }
 
     const resume = await UploadedResume.create({
-      userId: req.user._id,
-      fileName,
+      userId,
+      fileName: originalName,
       fileUrl: `/uploads/resumes/${fileName}`,
       extractedText
     })
 
-    await logActivity({
-      userId: req.user._id,
-      action: "Resume uploaded for analysis",
-      role: req.user.role || "user",
-      meta: { fileName }
-    })
+    if (userId) {
+      await logActivity({
+        userId,
+        action: "Resume uploaded for analysis",
+        role: userRole,
+        meta: { fileName: originalName }
+      })
+    }
 
     return res.status(201).json({
       success: true,
@@ -116,7 +121,6 @@ async function analyzeResume(req, res, next) {
 
     const keywordsFound = keywordMatcher(text, targetKeywords)
 
- 
     const requiredSkills = ["react", "node.js", "mongodb", "javascript"]
     const normalizedSkills = extractedSkills.map((skill) => skill.toLowerCase())
 
@@ -131,7 +135,6 @@ async function analyzeResume(req, res, next) {
     })
 
     const predictedRoleData = predictRoles(extractedSkills) || []
-
     const predictedRoles = predictedRoleData.slice(0, 3).map((item) => item.title)
 
     const suggestions = [
@@ -177,8 +180,8 @@ async function analyzeResume(req, res, next) {
   }
 }
 
-    async function getAnalysisHistory(req, res, next) {
-    try {
+async function getAnalysisHistory(req, res, next) {
+  try {
     const history = await Analysis.find({ userId: req.user._id })
       .populate("resumeId", "fileName fileUrl")
       .sort({ createdAt: -1 })

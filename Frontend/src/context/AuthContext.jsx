@@ -6,18 +6,26 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  function clearAuth() {
+    localStorage.removeItem("nextmove_user")
+    localStorage.removeItem("nextmove_token")
+    setUser(null)
+  }
+
   useEffect(() => {
     try {
       const storedUser = localStorage.getItem("nextmove_user")
       const storedToken = localStorage.getItem("nextmove_token")
 
       if (storedUser && storedToken) {
-        setUser(JSON.parse(storedUser))
+        const parsedUser = JSON.parse(storedUser)
+        setUser(parsedUser)
+      } else {
+        setUser(null)
       }
     } catch (error) {
       console.error("Auth load error:", error)
-      localStorage.removeItem("nextmove_user")
-      localStorage.removeItem("nextmove_token")
+      clearAuth()
     } finally {
       setLoading(false)
     }
@@ -30,9 +38,7 @@ export function AuthProvider({ children }) {
   }
 
   function logoutUser() {
-    localStorage.removeItem("nextmove_user")
-    localStorage.removeItem("nextmove_token")
-    setUser(null)
+    clearAuth()
   }
 
   return (

@@ -29,7 +29,11 @@ function LoginForm() {
       const data = await loginApi(form)
       loginUser(data.user, data.token)
 
-      navigate("/dashboard")
+      if (data.user?.role === "admin") {
+        navigate("/admin", { replace: true })
+      } else {
+        navigate("/dashboard", { replace: true })
+      }
     } catch (err) {
       setError(err?.response?.data?.message || "Invalid credentials")
     } finally {
@@ -88,12 +92,17 @@ function LoginForm() {
         <Link to="/forgot-password" className="text-blue-600 hover:underline">
           Forgot Password?
         </Link>
+
         <Link to="/otp-login" className="text-blue-600 hover:underline">
           Login with OTP
         </Link>
+
         <p className="text-gray-600">
           Don’t have an account?{" "}
-          <Link to="/register" className="text-blue-600 font-semibold hover:underline">
+          <Link
+            to="/register"
+            className="text-blue-600 font-semibold hover:underline"
+          >
             Register
           </Link>
         </p>

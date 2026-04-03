@@ -23,11 +23,8 @@ import GuestGuard from "../components/common/GuestGuard"
 function AppRoutes() {
   return (
     <Routes>
-
-      {/* ================= PUBLIC ROUTES ================= */}
       <Route path="/" element={<Home />} />
 
-      {/* Guest only routes (logged-in users redirected) */}
       <Route
         path="/login"
         element={
@@ -46,16 +43,27 @@ function AppRoutes() {
         }
       />
 
-      <Route path="/otp-login" element={<OtpLogin />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route
+        path="/otp-login"
+        element={
+          <GuestGuard>
+            <OtpLogin />
+          </GuestGuard>
+        }
+      />
 
-      {/* ================= PARTIAL ACCESS (GUEST + USER) ================= */}
+      <Route
+        path="/forgot-password"
+        element={
+          <GuestGuard>
+            <ForgotPassword />
+          </GuestGuard>
+        }
+      />
+
       <Route path="/resume-builder" element={<ResumeBuilderPage />} />
       <Route path="/resume-analyzer" element={<ResumeAnalyzerPage />} />
 
-      {/* ================= PROTECTED ROUTES ================= */}
-
-      {/* Career AI (IMPORTANT FEATURE) */}
       <Route
         path="/career"
         element={
@@ -65,7 +73,6 @@ function AppRoutes() {
         }
       />
 
-      {/* User Dashboard */}
       <Route
         path="/dashboard"
         element={
@@ -75,7 +82,6 @@ function AppRoutes() {
         }
       />
 
-      {/* Profile */}
       <Route
         path="/profile"
         element={
@@ -85,7 +91,6 @@ function AppRoutes() {
         }
       />
 
-      {/* ================= ADMIN ROUTES ================= */}
       <Route
         path="/admin"
         element={
@@ -95,10 +100,8 @@ function AppRoutes() {
         }
       />
 
-      {/* ================= FALLBACK ================= */}
       <Route path="/unauthorized" element={<Unauthorized />} />
       <Route path="*" element={<NotFound />} />
-
     </Routes>
   )
 }
